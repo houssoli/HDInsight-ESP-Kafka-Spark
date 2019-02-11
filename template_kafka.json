@@ -1,0 +1,176 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Kafka_Cluster_Name": {
+            "type": "String"
+        },
+        "Cluster_Username": {
+            "type": "String"
+        },
+        "Cluster_Password": {
+            "type": "String"
+        },
+        "WASB_Storage_Account_Name": {
+            "type": "String"
+        },
+        "WASB_Storage_Key": {
+            "type": "String"
+        },
+        "Kafka_VNET_Name": {
+            "type": "String"
+        },
+        "AADDS_Resource_Group_Name": {
+            "type": "String",
+            "metadata": {
+                "description": "Name of the Resource Group where AA-DDS is located" 
+            }
+        },
+        "AADDS_Domain_Name": {
+            "type": "String"
+        },
+        "Cluster_Admin_AD_Account_Username": {
+            "type": "String"
+        },
+        "Managed_Identity_Resource_Group": {
+            "type": "String"
+        },
+        "Managed_Identity_Name": {
+            "type": "String"
+        },
+        "Vault_URI": {
+            "type": "String"
+        },
+        "Key_Name": {
+            "type": "String"
+        },
+        "Key_Version": {
+            "type": "String"
+        }
+    },
+    "variables": {        
+        "mi_resource_id": "[concat('/subscriptions/',subscription().subscriptionId,'/resourceGroups/',parameters('Managed_Identity_Resource_Group'),'/providers/Microsoft.ManagedIdentity/userAssignedIdentities/',parameters('Managed_Identity_Name'))]",
+        "aadds_resource_id": "[concat('/subscriptions/',subscription().subscriptionId,'/resourceGroups/',parameters('AADDS_Resource_Group_Name'),'/providers/Microsoft.AAD/DomainServices/',parameters('AADDS_Domain_Name'))]"
+    },
+    "resources": [        
+        {
+            "comments": "Kafka Cluster",
+            "type": "Microsoft.HDInsight/clusters",
+            "name": "[parameters('Kafka_Cluster_Name')]",
+            "apiVersion": "2018-06-01-preview",
+            "location": "East US 2",
+            "scale": null,
+            "properties": {
+                "clusterVersion": "3.6.1000.67",
+                "osType": "Linux",
+                "clusterDefinition": {
+                    "kind": "KAFKA",
+                    "componentVersion": {
+                        "Kafka": "1.1"
+                    },
+                    "configurations": {
+                        "gateway": {
+                            "restAuthCredential.isEnabled": true,
+                            "restAuthCredential.username": "[parameters('Cluster_Username')]",
+                            "restAuthCredential.password": "[parameters('Cluster_Password')]"
+                        }
+                    }
+                },
+                "storageProfile": {
+                    "storageaccounts": [
+                        {
+                            "name": "[concat(parameters('WASB_Storage_Account_Name'),'.blob.core.windows.net')]",
+                            "isDefault": true,
+                            "container": "[toLower(uniqueString(concat(deployment().name,resourceGroup().id,parameters('Kafka_Cluster_Name'))))]",
+                            "key": "[parameters('WASB_Storage_Key')]"
+                        }
+                    ]
+                },
+                "computeProfile": {
+                    "roles": [
+                        {
+                            "name": "headnode",
+                            "targetInstanceCount": 2,
+                            "hardwareProfile": {
+                                "vmSize": "Standard_D3_V2"
+                            },
+                            "osProfile": {
+                                "linuxOperatingSystemProfile": {
+                                    "username": "[parameters('Cluster_Username')]",
+                                    "password": "[parameters('Cluster_Password')]"
+                                }
+                            },
+                            "virtualNetworkProfile": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('Kafka_VNET_Name'))]",
+                                "subnet": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('Kafka_VNET_Name'), 'default')]"
+                            }
+                        },
+                        {
+                            "name": "workernode",
+                            "targetInstanceCount": 3,
+                            "hardwareProfile": {
+                                "vmSize": "Standard_D3_V2"
+                            },
+                            "osProfile": {
+                                "linuxOperatingSystemProfile": {
+                                    "username": "[parameters('Cluster_Username')]",
+                                    "password": "[parameters('Cluster_Password')]"
+                                }
+                            },
+                            "virtualNetworkProfile": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('Kafka_VNET_Name'))]",
+                                "subnet": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('Kafka_VNET_Name'), 'default')]"
+                            },
+                            "dataDisksGroups": [
+                                {
+                                    "disksPerNode": 1
+                                }
+                            ]
+                        },
+                        {
+                            "name": "zookeepernode",
+                            "targetInstanceCount": 3,
+                            "hardwareProfile": {
+                                "vmSize": "large"
+                            },
+                            "osProfile": {
+                                "linuxOperatingSystemProfile": {
+                                    "username": "[parameters('Cluster_Username')]",
+                                    "password": "[parameters('Cluster_Password')]"
+                                }
+                            },
+                            "virtualNetworkProfile": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('Kafka_VNET_Name'))]",
+                                "subnet": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('Kafka_VNET_Name'), 'default')]"
+                            }
+                        }
+                    ]
+                },
+                "securityProfile": {
+                    "directoryType": "ActiveDirectory",
+                    "domain": "[parameters('AADDS_Domain_Name')]",
+                    "ldapsUrls": [
+                        "[concat('ldaps://',parameters('AADDS_Domain_Name'),':636/')]"
+                    ],
+                    "domainUsername": "[concat(parameters('Cluster_Admin_AD_Account_Username'),'@',parameters('AADDS_Domain_Name'))]",
+                    "aaddsResourceId": "[variables('aadds_resource_id')]",
+                    "msiResourceId": "[variables('mi_resource_id')]"
+                },
+                "tier": "premium",
+                "diskEncryptionProperties": {
+                    "vaultUri": "[parameters('Vault_URI')]",
+                    "keyName": "[parameters('Key_Name')]",
+                    "keyVersion": "[parameters('Key_Version')]",
+                    "encryptionAlgorithm": "RSA-OAEP",
+                    "msiResourceId": "[variables('mi_resource_id')]"
+                }
+            },
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[variables('mi_resource_id')]": {}
+                }
+            }
+        }
+    ]
+}

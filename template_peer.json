@@ -1,0 +1,39 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {       
+        "My_VNET_Name": {            
+            "type": "String"
+        },
+        "Remote_VNET_Name": {            
+            "type": "String",
+            "metadata": {
+                "description": "Name of the Remote VNET for Peering." 
+            }
+        }
+    },
+    "variables": {        
+        "subnets_default_name": "default",
+        "virtualNetworkPeerings_Peer2VNET_name": "[concat('Peer2',parameters('Remote_VNET_Name'))]"
+    },
+    "resources": [        
+        {
+            "comments": "VNET Peer2VNET",
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "name": "[concat(parameters('My_VNET_Name'), '/', variables('virtualNetworkPeerings_Peer2VNET_name'))]",
+            "apiVersion": "2018-10-01",
+            "scale": null,
+            "properties": {
+                "provisioningState": "Succeeded",
+                "peeringState": "Connected",
+                "remoteVirtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('Remote_VNET_Name'))]"
+                },
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": false,
+                "useRemoteGateways": false
+            }
+        }        
+    ]
+}
