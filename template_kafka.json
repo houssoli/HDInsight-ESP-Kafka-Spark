@@ -3,46 +3,57 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "Kafka_Cluster_Name": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "KTXXCluster"
         },
-        "Cluster_Username": {
-            "type": "String"
+        "Cluster_Local_Admin_Username": {
+            "type": "String",
+            "defaultValue": "sshuser"
         },
         "Cluster_Password": {
-            "type": "String"
+            "type": "securestring"
         },
         "WASB_Storage_Account_Name": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "ready2019wasb"
         },
         "WASB_Storage_Key": {
             "type": "String"
         },
         "Kafka_VNET_Name": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "KTXXVNET"
         },
         "AADDS_Resource_Group_Name": {
             "type": "String",
+            "defaultValue": "AADDS-RG",
             "metadata": {
                 "description": "Name of the Resource Group where AA-DDS is located" 
             }
         },
         "AADDS_Domain_Name": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "HDIESP.onmicrosoft.com"
         },
         "Cluster_Admin_AD_Account_Username": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "ktXX@HDIESP.onmicrosoft.com"
         },
         "Managed_Identity_Resource_Group": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "Ready2019RG"
         },
         "Managed_Identity_Name": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "Team01MI"
         },
         "Vault_URI": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "https://ready2019akv.vault.azure.net"
         },
         "Key_Name": {
-            "type": "String"
+            "type": "String",
+            "defaultValue": "Team01KafkaKey"
         },
         "Key_Version": {
             "type": "String"
@@ -58,7 +69,7 @@
             "type": "Microsoft.HDInsight/clusters",
             "name": "[parameters('Kafka_Cluster_Name')]",
             "apiVersion": "2018-06-01-preview",
-            "location": "East US 2",
+            "location": "[resourceGroup().location]",
             "scale": null,
             "properties": {
                 "clusterVersion": "3.6.1000.67",
@@ -71,7 +82,7 @@
                     "configurations": {
                         "gateway": {
                             "restAuthCredential.isEnabled": true,
-                            "restAuthCredential.username": "[parameters('Cluster_Username')]",
+                            "restAuthCredential.username": "[parameters('Cluster_Local_Admin_Username')]",
                             "restAuthCredential.password": "[parameters('Cluster_Password')]"
                         }
                     }
@@ -96,7 +107,7 @@
                             },
                             "osProfile": {
                                 "linuxOperatingSystemProfile": {
-                                    "username": "[parameters('Cluster_Username')]",
+                                    "username": "[parameters('Cluster_Local_Admin_Username')]",
                                     "password": "[parameters('Cluster_Password')]"
                                 }
                             },
@@ -113,7 +124,7 @@
                             },
                             "osProfile": {
                                 "linuxOperatingSystemProfile": {
-                                    "username": "[parameters('Cluster_Username')]",
+                                    "username": "[parameters('Cluster_Local_Admin_Username')]",
                                     "password": "[parameters('Cluster_Password')]"
                                 }
                             },
@@ -135,7 +146,7 @@
                             },
                             "osProfile": {
                                 "linuxOperatingSystemProfile": {
-                                    "username": "[parameters('Cluster_Username')]",
+                                    "username": "[parameters('Cluster_Local_Admin_Username')]",
                                     "password": "[parameters('Cluster_Password')]"
                                 }
                             },

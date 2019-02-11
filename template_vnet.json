@@ -9,14 +9,14 @@
             }
         },
         "VNET_IP_Range": {
-            "defaultValue": "10.1.0.0/16",
+            "defaultValue": "10._.0.0/16",
             "type": "String",
             "metadata": {
                 "description": "IP range for the VNET, including prefix length"
             }
         },
         "Subnet_IP_Range": {
-            "defaultValue": "10.1.0.0/24",
+            "defaultValue": "10._.0.0/24",
             "type": "String",
             "metadata": {
                 "description": "IP range for the subnet, including prefix length"
@@ -30,12 +30,14 @@
         },
         "AADDS_Resource_Group_Name": {
             "type": "String",
+            "defaultValue": "AADDS-RG",
             "metadata": {
                 "description": "Name of the Resource Group that Azure Active Directory Domain Services is in" 
             }
         },
         "AD_VNET_Name": {
             "type": "String",
+            "defaultValue": "AD-VNET",
             "metadata": {
                 "description": "Name of the existing VNET Azure Active Directory Domain Services is in" 
             }
