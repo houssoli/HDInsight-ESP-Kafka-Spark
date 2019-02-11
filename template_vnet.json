@@ -67,7 +67,7 @@
                     ]
                 },
                 "dhcpOptions": {
-                    "dnsServers": "[concat(split(parameters('AADDS_DNS_Servers'),','),array(variables('ARR_IP')))]"
+                    "dnsServers": "[concat(split(replace(parameters('AADDS_DNS_Servers'), ' ', ''),','),array(variables('ARR_IP')))]"
                 },
                 "subnets": [
                     {
