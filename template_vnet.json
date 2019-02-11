@@ -134,7 +134,8 @@
                 "useRemoteGateways": false                
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('VNET_Name'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('VNET_Name'))]",
+                "[concat('Microsoft.Resources/deployments/', 'nestedtemplate')]"
             ]
         },
         {
