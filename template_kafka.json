@@ -11,7 +11,10 @@
             "defaultValue": "sshuser"
         },
         "Cluster_Password": {
-            "type": "securestring"
+            "type": "securestring",
+            "metadata": {
+                "description": "The password must be at least 10 characters in length and must contain at least one digit, one uppercase and one lower case letter, one non-alphanumeric character (except characters ' \" ` \\)." 
+            }
         },
         "Storage_Account_Name": {
             "type": "String",
