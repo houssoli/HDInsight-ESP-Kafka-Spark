@@ -4,25 +4,32 @@
     "parameters": {
         "Spark_Cluster_Name": {
             "type": "String",
-            "defaultValue": "STXXCluster"
+            "defaultValue": "ST__Cluster"
         },
         "Cluster_Local_Admin_Username": {
             "type": "String",
             "defaultValue": "sshuser"
         },
         "Cluster_Password": {
-            "type": "securestring"
+            "type": "securestring",
+            "metadata": {
+                "description": "The password must be at least 10 characters in length and must contain at least one digit, one uppercase and one lower case letter, one non-alphanumeric character (except characters ' \" ` \\)." 
+            }
         },
-        "WASB_Storage_Account_Name": {
+        "Storage_Account_Name": {
             "type": "String",
             "defaultValue": "ready2019wasb"
         },
-        "WASB_Storage_Key": {
-            "type": "String"
+        "Storage_Account_Resource_Group_Name": {
+            "type": "String",
+            "defaultValue": "Ready2019RG",
+            "metadata": {
+                "description": "Name of the Resource Group where the storage account is located." 
+            }
         },
         "Spark_VNET_Name": {
             "type": "String",
-            "defaultValue": "STXXVNET"
+            "defaultValue": "ST__VNET"
         },
         "AADDS_Resource_Group_Name": {
             "type": "String",
@@ -37,11 +44,11 @@
         },
         "Cluster_Admin_AD_Account_Username": {
             "type": "String",
-            "defaultValue": "stXX@HDIESP.onmicrosoft.com"
+            "defaultValue": "st__@HDIESP.onmicrosoft.com"
         },
         "Cluster_Access_Group_Name": {
             "type": "String",
-            "defaultValue": "TeamXXAADGroup"
+            "defaultValue": "Team__AADGroup"
         },
         "Managed_Identity_Resource_Group": {
             "type": "String",
@@ -49,7 +56,7 @@
         },
         "Managed_Identity_Name": {
             "type": "String",
-            "defaultValue": "Team01MI"
+            "defaultValue": "Ready2019MI"
         }
     },
     "variables": {        
@@ -83,10 +90,10 @@
                 "storageProfile": {
                     "storageaccounts": [
                         {
-                            "name": "[concat(parameters('WASB_Storage_Account_Name'),'.blob.core.windows.net')]",
+                            "name": "[concat(parameters('Storage_Account_Name'),'.blob.core.windows.net')]",
                             "isDefault": true,
                             "container": "[toLower(uniqueString(concat(deployment().name,resourceGroup().id,parameters('Spark_Cluster_Name'))))]",
-                            "key": "[parameters('WASB_Storage_Key')]"
+                            "key": "[listKeys(resourceId(parameters('Storage_Account_Resource_Group_Name'),'Microsoft.Storage/storageAccounts', parameters('Storage_Account_Name')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
                         }
                     ]
                 },

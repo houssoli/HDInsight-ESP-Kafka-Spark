@@ -4,7 +4,7 @@
     "parameters": {
         "Kafka_Cluster_Name": {
             "type": "String",
-            "defaultValue": "KTXXCluster"
+            "defaultValue": "KT__Cluster"
         },
         "Cluster_Local_Admin_Username": {
             "type": "String",
@@ -13,16 +13,20 @@
         "Cluster_Password": {
             "type": "securestring"
         },
-        "WASB_Storage_Account_Name": {
+        "Storage_Account_Name": {
             "type": "String",
             "defaultValue": "ready2019wasb"
         },
-        "WASB_Storage_Key": {
-            "type": "String"
+        "Storage_Account_Resource_Group_Name": {
+            "type": "String",
+            "defaultValue": "Ready2019RG",
+            "metadata": {
+                "description": "Name of the Resource Group where the storage account is located." 
+            }
         },
         "Kafka_VNET_Name": {
             "type": "String",
-            "defaultValue": "KTXXVNET"
+            "defaultValue": "KT__VNET"
         },
         "AADDS_Resource_Group_Name": {
             "type": "String",
@@ -37,7 +41,7 @@
         },
         "Cluster_Admin_AD_Account_Username": {
             "type": "String",
-            "defaultValue": "ktXX@HDIESP.onmicrosoft.com"
+            "defaultValue": "kt__@HDIESP.onmicrosoft.com"
         },
         "Managed_Identity_Resource_Group": {
             "type": "String",
@@ -45,23 +49,22 @@
         },
         "Managed_Identity_Name": {
             "type": "String",
-            "defaultValue": "Team01MI"
+            "defaultValue": "Ready2019MI"
         },
-        "Vault_URI": {
+        "Kafka_Disk_Encryption_Key_URL": {
             "type": "String",
-            "defaultValue": "https://ready2019akv.vault.azure.net"
-        },
-        "Key_Name": {
-            "type": "String",
-            "defaultValue": "Team01KafkaKey"
-        },
-        "Key_Version": {
-            "type": "String"
+            "metadata": {
+                "description": "Key URL beginning with https://" 
+            }
         }
     },
     "variables": {        
         "mi_resource_id": "[concat('/subscriptions/',subscription().subscriptionId,'/resourceGroups/',parameters('Managed_Identity_Resource_Group'),'/providers/Microsoft.ManagedIdentity/userAssignedIdentities/',parameters('Managed_Identity_Name'))]",
-        "aadds_resource_id": "[concat('/subscriptions/',subscription().subscriptionId,'/resourceGroups/',parameters('AADDS_Resource_Group_Name'),'/providers/Microsoft.AAD/DomainServices/',parameters('AADDS_Domain_Name'))]"
+        "aadds_resource_id": "[concat('/subscriptions/',subscription().subscriptionId,'/resourceGroups/',parameters('AADDS_Resource_Group_Name'),'/providers/Microsoft.AAD/DomainServices/',parameters('AADDS_Domain_Name'))]",
+        "disk_encryption_key_url_split": "[split(parameters('Kafka_Disk_Encryption_Key_URL'), '/')]",
+        "vault_uri": "[concat('https://',variables('disk_encryption_key_url_split')[2])]",
+        "key_name": "[variables('disk_encryption_key_url_split')[4]]",
+        "key_version": "[variables('disk_encryption_key_url_split')[5]]"
     },
     "resources": [        
         {
@@ -90,10 +93,10 @@
                 "storageProfile": {
                     "storageaccounts": [
                         {
-                            "name": "[concat(parameters('WASB_Storage_Account_Name'),'.blob.core.windows.net')]",
+                            "name": "[concat(parameters('Storage_Account_Name'),'.blob.core.windows.net')]",
                             "isDefault": true,
                             "container": "[toLower(uniqueString(concat(deployment().name,resourceGroup().id,parameters('Kafka_Cluster_Name'))))]",
-                            "key": "[parameters('WASB_Storage_Key')]"
+                            "key": "[listKeys(resourceId(parameters('Storage_Account_Resource_Group_Name'),'Microsoft.Storage/storageAccounts', parameters('Storage_Account_Name')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
                         }
                     ]
                 },
@@ -169,9 +172,9 @@
                 },
                 "tier": "premium",
                 "diskEncryptionProperties": {
-                    "vaultUri": "[parameters('Vault_URI')]",
-                    "keyName": "[parameters('Key_Name')]",
-                    "keyVersion": "[parameters('Key_Version')]",
+                    "vaultUri": "[variables('vault_uri')]",
+                    "keyName": "[variables('key_name')]",
+                    "keyVersion": "[variables('key_version')]",
                     "encryptionAlgorithm": "RSA-OAEP",
                     "msiResourceId": "[variables('mi_resource_id')]"
                 }
