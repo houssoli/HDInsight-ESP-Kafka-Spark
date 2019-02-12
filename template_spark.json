@@ -6,7 +6,7 @@
             "type": "String",
             "defaultValue": "ST__Cluster"
         },
-        "Cluster_Local_Admin_Username": {
+        "Admin_SSH_Username": {
             "type": "String",
             "defaultValue": "sshuser"
         },
@@ -82,7 +82,7 @@
                     "configurations": {
                         "gateway": {
                             "restAuthCredential.isEnabled": true,
-                            "restAuthCredential.username": "[parameters('Cluster_Local_Admin_Username')]",
+                            "restAuthCredential.username": "[split(parameters('Cluster_Admin_AD_Account_Username'),'@')[0]]",
                             "restAuthCredential.password": "[parameters('Cluster_Password')]"
                         }
                     }
@@ -107,7 +107,7 @@
                             },
                             "osProfile": {
                                 "linuxOperatingSystemProfile": {
-                                    "username": "[parameters('Cluster_Local_Admin_Username')]",
+                                    "username": "[parameters('Admin_SSH_Username')]",
                                     "password": "[parameters('Cluster_Password')]"
                                 }
                             },
@@ -124,7 +124,7 @@
                             },
                             "osProfile": {
                                 "linuxOperatingSystemProfile": {
-                                    "username": "[parameters('Cluster_Local_Admin_Username')]",
+                                    "username": "[parameters('Admin_SSH_Username')]",
                                     "password": "[parameters('Cluster_Password')]"
                                 }
                             },
