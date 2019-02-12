@@ -46,6 +46,10 @@
             "type": "String",
             "defaultValue": "kt__@HDIESP.onmicrosoft.com"
         },
+        "Cluster_Access_Group_Name": {
+            "type": "String",
+            "defaultValue": "Team__AADGroup"
+        },
         "Managed_Identity_Resource_Group": {
             "type": "String",
             "defaultValue": "Ready2019RG"
@@ -170,6 +174,9 @@
                         "[concat('ldaps://',parameters('AADDS_Domain_Name'),':636/')]"
                     ],
                     "domainUsername": "[parameters('Cluster_Admin_AD_Account_Username')]",
+                    "clusterUsersGroupDNs": [
+                        "[parameters('Cluster_Access_Group_Name')]"
+                    ],
                     "aaddsResourceId": "[variables('aadds_resource_id')]",
                     "msiResourceId": "[variables('mi_resource_id')]"
                 },
