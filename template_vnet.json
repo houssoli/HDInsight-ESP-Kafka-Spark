@@ -22,7 +22,7 @@
                 "description": "IP range for the subnet, including prefix length"
             }
         },
-        "AADDS_DNS_Servers": {
+        "AADDS_DNS_Servers_IPs": {
             "type": "String",
             "metadata": {
                 "description": "Comma separated list of IP addresses"
@@ -67,7 +67,7 @@
                     ]
                 },
                 "dhcpOptions": {
-                    "dnsServers": "[concat(split(replace(trim(parameters('AADDS_DNS_Servers')), ' ', ''),','),array(variables('ARR_IP')))]"
+                    "dnsServers": "[concat(split(replace(trim(parameters('AADDS_DNS_Servers_IPs')), ' ', ''),','),array(variables('ARR_IP')))]"
                 },
                 "subnets": [
                     {
