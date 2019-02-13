@@ -92,7 +92,7 @@
                     "configurations": {
                         "gateway": {
                             "restAuthCredential.isEnabled": true,
-                            "restAuthCredential.username": "[split(parameters('Cluster_Admin_AD_Account_Username'),'@')[0]]",
+                            "restAuthCredential.username": "admin",
                             "restAuthCredential.password": "[parameters('Cluster_Password')]"
                         }
                     }
