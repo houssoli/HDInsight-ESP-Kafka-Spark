@@ -48,7 +48,8 @@
         "ADVNET_address_prefixes": "10.0.0.0/16",
         "virtualNetworkPeerings_Peer2VNET_name": "[concat('Peer2',parameters('VNET_Name'))]",
         "ARR_IP": "168.63.129.16",
-        "virtualNetworks_ADVNET_id": "[concat('/subscriptions/',subscription().subscriptionId,'/resourceGroups/',parameters('AADDS_Resource_Group_Name'),'/providers/Microsoft.Network/virtualNetworks/',parameters('AD_VNET_Name'))]"
+        "virtualNetworks_ADVNET_id": "[concat('/subscriptions/',subscription().subscriptionId,'/resourceGroups/',parameters('AADDS_Resource_Group_Name'),'/providers/Microsoft.Network/virtualNetworks/',parameters('AD_VNET_Name'))]",
+        "nestedtemplate_name": "[concat('nestedtemplate',parameters('VNET_Name'))]"
     },
     "resources": [
         {
@@ -137,12 +138,12 @@
             },
             "dependsOn": [
                 "[resourceId('Microsoft.Network/virtualNetworks', parameters('VNET_Name'))]",
-                "[concat('Microsoft.Resources/deployments/', 'nestedtemplate')]"
+                "[concat('Microsoft.Resources/deployments/', variables('nestedtemplate_name'))]"
             ]
         },
         {
             "apiVersion": "2017-05-10",
-            "name": "nestedtemplate",
+            "name": "variables('nestedtemplate_name')",
             "type": "Microsoft.Resources/deployments",
             "resourceGroup": "[parameters('AADDS_Resource_Group_Name')]",            
             "properties": {
